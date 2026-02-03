@@ -242,3 +242,13 @@ POST /tokens/cancel/:tokenId
 ```
 POST /simulate/day
 ```
+---
+
+## 🚀 How to Run Locally
+
+```bash
+git clone https://github.com/aditya-pratap-100/OPD-Token-Allocation-Engine.git
+cd OPD-Token-Allocation-Engine
+npm install
+npm run dev
+
