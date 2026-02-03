@@ -1,81 +1,83 @@
-A backend system to manage hospital OPD token allocation with priority handling, elastic slot capacity, emergency overrides, waitlisting, and real-world event simulation.
+# 🏥 OPD Token Allocation Engine
 
-This project models real hospital workflows including walk-ins, online bookings, paid priority patients, follow-ups, emergencies, cancellations, and no-shows.
+A backend system to manage **hospital OPD token allocation** with **priority handling**, **elastic slot capacity**, **emergency overrides**, **waitlisting**, and **real‑world event simulation**.
 
-🚀 Features
+This project models real hospital workflows including **walk‑ins, online bookings, paid priority patients, follow‑ups, emergencies, cancellations, and no‑shows**.
 
-⏰ Fixed OPD slots with hard capacity limits
+---
 
-🎟️ Priority-based token allocation
+## 🚀 Features
 
-🚑 Emergency override (overbooking allowed)
+* ⏰ Fixed OPD slots with hard capacity limits
+* 🎟️ Priority‑based token allocation
+* 🚑 Emergency override (overbooking allowed)
+* 🧾 Waitlist with automatic promotion
+* ❌ Cancellation & no‑show handling
+* 🔁 Dynamic reallocation
+* 🧪 OPD day simulation (stress test)
+* 🧪 Automated tests using Jest
+* 🌐 RESTful APIs (Node.js + Express)
+* 🗄️ MongoDB with Mongoose
 
-🧾 Waitlist with automatic promotion
+---
 
-❌ Cancellation & no-show handling
+## 🧠 Core Design Principles
 
-🔁 Dynamic reallocation
+* Business logic isolated in services
+* Controllers are thin
+* Single allocation engine reused everywhere
+* Explicit handling of real‑world edge cases
+* Readable, interview‑friendly architecture
 
-🧪 OPD day simulation (stress test)
+---
 
-🧪 Automated tests using Jest
+## 🏗️ High‑Level Architecture
 
-🌐 RESTful APIs (Node.js + Express)
+```
+Frontend (Lovable UI – planned)
+        |
+        v
+REST APIs (HTTP)
+        |
+        v
+Express API Layer (Controllers)
+        |
+        v
+Allocation Engine Service (Core Business Logic)
+  - Slot capacity checks
+  - Priority comparison
+  - Emergency override
+  - Waitlist handling
+  - Auto reallocation
+        |
+        v
+MongoDB
+  - Doctors
+  - Slots
+  - Tokens
+```
 
-🗄️ MongoDB with Mongoose
+> **Note:** The same allocation engine is reused by booking APIs, cancellation logic, emergency handling, and the simulation engine.
 
-🧠 Core Design Principles
+---
 
-Business logic isolated in services
+## 📦 Tech Stack
 
-Controllers are thin
+| Layer              | Technology       |
+| ------------------ | ---------------- |
+| Backend            | Node.js, Express |
+| Database           | MongoDB          |
+| ODM                | Mongoose         |
+| Testing            | Jest             |
+| Time Utils         | Day.js           |
+| API Testing        | Postman          |
+| Frontend (planned) | Lovable          |
 
-Single allocation engine reused everywhere
+---
 
-Explicit handling of real-world edge cases
+## 🗂️ Project Structure
 
-Readable, interview-friendly architecture
-
-🏗️ High-Level Architecture
-                ┌──────────────┐
-                │   Frontend   │
-                │ (Lovable UI) │
-                └──────┬───────┘
-                       │ REST APIs
-                       ▼
-              ┌───────────────────┐
-              │  Express API Layer │
-              │  (Controllers)    │
-              └──────┬────────────┘
-                     │
-                     ▼
-          ┌──────────────────────────┐
-          │ Allocation Engine Service │
-          │ (Core Business Logic)     │
-          │                            │
-          │ - Slot capacity checks    │
-          │ - Priority comparison     │
-          │ - Emergency override      │
-          │ - Waitlist handling       │
-          │ - Auto reallocation       │
-          └──────┬───────────────────┘
-                 │
-                 ▼
-          ┌──────────────────────────┐
-          │       MongoDB             │
-          │ Doctors | Slots | Tokens  │
-          └──────────────────────────┘
-
-📦 Tech Stack
-Layer	Technology
-Backend	Node.js, Express
-Database	MongoDB
-ODM	Mongoose
-Testing	Jest
-Time utils	Day.js
-API Testing	Postman
-Frontend (planned)	Lovable
-🗂️ Project Structure
+```
 opd-token-engine/
 │
 ├── src/
@@ -110,20 +112,29 @@ opd-token-engine/
 ├── .env
 ├── package.json
 └── README.md
+```
 
-🎯 Token Prioritization Rules
-Source	Priority	Behavior
-EMERGENCY	1	Always allocated, may overbook
-PAID	2	High priority
-FOLLOWUP	3	Medium
-ONLINE	4	Normal
-WALKIN	5	Lowest
+---
 
-Important Design Decision
-Emergency is treated as an override, not just a higher priority.
-It bypasses capacity checks and is handled in a separate code path.
+## 🎯 Token Prioritization Rules
 
-🔄 Allocation Algorithm (Simplified)
+| Source    | Priority | Behavior                       |
+| --------- | -------- | ------------------------------ |
+| EMERGENCY | 1        | Always allocated, may overbook |
+| PAID      | 2        | High priority                  |
+| FOLLOWUP  | 3        | Medium                         |
+| ONLINE    | 4        | Normal                         |
+| WALKIN    | 5        | Lowest                         |
+
+**Important Design Decision**
+
+Emergency is treated as an **override**, not just a higher priority. It bypasses capacity checks and is handled in a separate code path.
+
+---
+
+## 🔄 Allocation Algorithm (Simplified)
+
+```
 If token is EMERGENCY:
     Allocate immediately (OVERBOOK slot if needed)
 
@@ -137,39 +148,44 @@ Else:
         Allocate new token
     Else:
         Add token to WAITLIST
+```
 
-🔁 Dynamic Event Handling
-Cancellation / No-Show
+---
 
-Cancelled token frees slot
+## 🔁 Dynamic Event Handling
 
-Highest-priority waitlisted token is auto-promoted
+### Cancellation / No‑Show
 
-Emergency
+* Cancelled token frees the slot
+* Highest‑priority waitlisted token is auto‑promoted
 
-Slot may exceed capacity
+### Emergency
 
-Slot marked as OVERBOOKED
+* Slot may exceed capacity
+* Slot marked as **OVERBOOKED**
 
-🧪 OPD Day Simulation
-Endpoint
+---
+
+## 🧪 OPD Day Simulation
+
+**Endpoint**
+
+```
 POST /simulate/day
+```
 
-What it does:
+**What it does**
 
-Creates 3 doctors
+* Creates 3 doctors
+* Creates slots for the full OPD window
+* Performs random bookings
+* Injects emergency insertions
+* Randomly cancels some tokens
+* Returns a summary
 
-Creates slots for full OPD window
+**Example Response**
 
-Random bookings
-
-Emergency insertions
-
-Random cancellations
-
-Returns summary
-
-Example Response
+```json
 {
   "doctors": 3,
   "slotsCreated": 9,
@@ -178,33 +194,51 @@ Example Response
   "cancellations": 3,
   "waitlistedRemaining": 1
 }
+```
 
-🧪 Automated Testing (Jest)
+---
 
-Key scenarios covered:
+## 🧪 Automated Testing (Jest)
 
-Allocation when slot has capacity
+**Key scenarios covered**
 
-Waitlisting when slot is full
+* Allocation when slot has capacity
+* Waitlisting when slot is full
+* Cancellation with auto reallocation
 
-Cancellation with auto reallocation
+**Run tests**
 
-Run tests:
-
+```bash
 npm test
+```
 
-🌐 API Overview
-Doctors
+---
+
+## 🌐 API Overview
+
+### Doctors
+
+```
 POST /doctors
 GET  /doctors
+```
 
-Slots
+### Slots
+
+```
 POST /slots
 GET  /slots?doctorId=<id>
+```
 
-Tokens
+### Tokens
+
+```
 POST /tokens/book
 POST /tokens/cancel/:tokenId
+```
 
-Simulation
+### Simulation
+
+```
 POST /simulate/day
+```
